@@ -32,8 +32,9 @@ class ReservationCreated extends Notification
         ->line('Data: ' . $this->reservation->data)
         ->line('Fascia oraria: ' . $this->fascia)
         ->line('Numero di posti: ' . $this->posti)
-        ->line(new HtmlString('<form action="' . $acceptUrl . '" method="POST">' . csrf_field() . '<button type="submit">Accetta</button></form>'))
-        ->line(new HtmlString('<form action="' . $rejectUrl . '" method="POST">' . csrf_field() . '<button type="submit">Rifiuta</button></form>'));
+        ->action('Accetta prenotazione', url('/reservations/' . $this->reservation->token . '/accept'));
+        // ->action('Rifiuta prenotazione', url('/reservations/' . $this->reservation->token . '/reject'));
+
 }
 
 

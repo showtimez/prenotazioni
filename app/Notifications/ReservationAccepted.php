@@ -15,7 +15,7 @@ class ReservationAccepted extends Notification
     {
         $this->reservation = $reservation;
         $this->fascia = $fascia;
-        $this->posti = $posti - 40;
+        $this->posti = $posti ;
     }
 
     public function via($notifiable)

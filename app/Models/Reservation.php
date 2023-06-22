@@ -12,15 +12,23 @@ class Reservation extends Model
     protected $table = 'reservations';
     protected $fillable = [
         'data',
-        'fascia_1',
-        'fascia_2',
-        'fascia_3',
-        'fascia_4',
-        'user_id'
+        'fascia',
+        'posti',
+        'user_id',
+        'table_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
+    }
+    public function setAccepted($value)
+    {
+        $this->is_accepted = $value;
+        $this->save();
     }
 }

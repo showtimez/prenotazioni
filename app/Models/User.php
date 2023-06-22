@@ -52,4 +52,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reservation::class);
     }
+    public function isAdmin()
+{
+    // Verifica il valore della colonna "is_admin" per determinare se l'utente è un amministratore
+    return $this->is_admin;
+}
+
 }

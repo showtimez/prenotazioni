@@ -9,26 +9,30 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('SET NULL');
             $table->date('data');
-            $table->integer('fascia_1')->default(40)->check('fascia_1 >= -40');
-            $table->integer('fascia_2')->default(40)->check('fascia_2 >= -40');
-            $table->integer('fascia_3')->default(40)->check('fascia_3 >= -40');
-            $table->integer('fascia_4')->default(40)->check('fascia_4 >= -40');
+            $table->integer('fascia');
+            $table->integer('posti');
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::dropIfExists('reservations');
-    }
+{
+    Schema::table('reservations', function (Blueprint $table) {
+        $table->dropForeign(['user_id']);
+        $table->dropColumn(['user_id']);
+    });
+    Schema::dropIfExists('reservations');
+}
+
 };
