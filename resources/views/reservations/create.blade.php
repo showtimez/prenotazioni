@@ -21,7 +21,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-md-4 shadow">
 
-            <form action="/prenota" method="post">
+            <form action="/prenota/store" method="post">
                 @csrf
 
                 <div class="form-group text-center mb-3">
@@ -60,9 +60,11 @@
                     <label for="fascia">Fascia oraria</label>
                     <select name="fascia" id="fascia" class="form-control @error('fascia') is-invalid @enderror">
                         <option value="">Seleziona una fascia oraria</option>
-                        <option value="1" @if (old('fascia') == 1) selected @endif>18.30 - 20.00</option>
-                        <option value="2" @if (old('fascia') == 2) selected @endif>20.00 - 21.30</option>
-                        <option value="3" @if (old('fascia') == 3) selected @endif>21.30 - 23.00</option>
+                        <option value="1" @if (old('fascia') == 1) selected @endif>18.00 - 19.00</option>
+                        <option value="2" @if (old('fascia') == 2) selected @endif>19.00 - 20.00</option>
+                        <option value="3" @if (old('fascia') == 3) selected @endif>20.00 - 21.00</option>
+                        <option value="3" @if (old('fascia') == 3) selected @endif>21.00 - 22.00</option>
+                        <option value="3" @if (old('fascia') == 3) selected @endif>22.00 - 23.00</option>
                     </select>
                     @error('fascia')
                         <div class="invalid-feedback">{{ $message }}</div>

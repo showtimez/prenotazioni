@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
@@ -14,10 +15,7 @@ use Illuminate\Support\Str;
 
 class ReservationController extends Controller
 {
-    public function create()
-    {
-        return view('reservations.create');
-    }
+
 
     public function store(Request $request)
     {
@@ -45,31 +43,6 @@ class ReservationController extends Controller
             $userId = $user->id;
         }
 
-        // Recupera la prenotazione per la data selezionata dall'utente
-        $reservation = Reservation::where('data', $data['data'])->first();
-
-        // Se non esiste una prenotazione per la data selezionata dall'utente, creane una nuova
-        // if (!$reservation) {
-        //     $reservation = new Reservation([
-        //         'data' => $data['data'],
-        //         'fascia_1' => 40,
-        //         'fascia_2' => 40,
-        //         'fascia_3' => 40,
-        //     ]);
-        // }
-
-        // // Sottrai il numero di posti prenotati dal valore della colonna corrispondente alla fascia oraria selezionata dall'utente
-        // $fasciaColumn = 'fascia_' . $data['fascia'];
-        // $newValue = $reservation->$fasciaColumn - $data['posti'];
-
-        // if ($newValue < -40) {
-        //     // Handle the error (e.g., return an error message to the user)
-        //     return redirect('/prenota')->with('error', 'I posti per la fascia oraria selezionata sono esauriti.');
-        // } else {
-        //     $reservation->$fasciaColumn = $newValue;
-        // }
-
-
         // Salva la prenotazione
         $reservation = Reservation::create([
             'user_id' => $userId,
@@ -88,12 +61,13 @@ class ReservationController extends Controller
                 ->notify(new ReservationCreated($reservation, $data['fascia'], $data['posti']));
         }
 
-        return redirect('/prenota')->with('status', 'Prenotazione effettuata con successo!');
+        return redirect('/prenota')->with('status', 'Prenotazione effettuata con successo, riceverai una coferma tramite email!');
     }
     public function accept(Reservation $reservation)
     {
+
         // Aggiorna lo stato della prenotazione
-        $reservation->update(['accepted' => true]);
+        $reservation->update(['is_accepted' => true]);
 
         // Recupera la fascia oraria e il numero di posti prenotati dall'utente
         $fascia = $reservation->fascia;
@@ -102,13 +76,17 @@ class ReservationController extends Controller
         // Invia la notifica all'utente
         $reservation->user->notify(new ReservationAccepted($reservation, $fascia, $posti));
 
-        return redirect('/reservations')->with('status', 'Prenotazione accettata con successo!');
+        return redirect('/prenota')->with('status', 'Prenotazione accettata con successo!');
     }
-
+    public function rejected(Reservation $reservation)
+    {
+        // Aggiorna lo stato della prenotazione
+        $reservation->update(['is_accepted' => false]);
+    }
     public function update(Request $request, Reservation $reservation)
     {
         $data = $request->validate([
-            'fascia' => 'required|integer|min:1|max:3',
+            'fascia' => 'required|integer|min:1|max:6',
             'posti' => 'required|integer|min:1',
             'table_id' => 'nullable|integer',
         ]);
@@ -143,4 +121,20 @@ public function rejectViaEmail($token)
 
     return redirect('/')->with('status', 'Prenotazione rifiutata con successo!');
 }
+
+    public function toggleForm(Request $request)
+    {
+        $formDisabled = $request->input('form_disabled');
+        Setting::updateOrCreate(
+            ['key' => 'form_disabled'],
+            ['value' => $formDisabled]
+        );
+    }
+    public function create()
+    {
+        $formDisabled = Setting::where('key', 'form_disabled')->value('value');
+        return view('reservations.create', ['form_disabled' => $formDisabled]);
+    }
+
+
 }

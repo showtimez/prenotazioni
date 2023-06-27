@@ -18,24 +18,24 @@ class ReservationCreated extends Notification
         $this->fascia = $fascia;
         $this->posti = $posti;
     }
-
     public function toMail($notifiable)
-{
-    $acceptUrl = url('/reservations/' . $this->reservation->id . '/accept');
-    $rejectUrl = url('/reservations/' . $this->reservation->id . '/reject');
+    {
+        $acceptUrl = route('reservations.accept', $this->reservation->id);
+        $rejectUrl = route('reservations.reject', $this->reservation->id);
 
-    return (new MailMessage)
-        ->line('È stata effettuata una nuova prenotazione.')
-        ->line('Nome: ' . $this->reservation->user->name)
-        ->line('Email: ' . $this->reservation->user->email)
-        ->line('Telefono: ' . $this->reservation->user->telephone)
-        ->line('Data: ' . $this->reservation->data)
-        ->line('Fascia oraria: ' . $this->fascia)
-        ->line('Numero di posti: ' . $this->posti)
-        ->action('Accetta prenotazione', url('/reservations/' . $this->reservation->token . '/accept'));
-        // ->action('Rifiuta prenotazione', url('/reservations/' . $this->reservation->token . '/reject'));
+        return (new MailMessage)
+            ->line('È stata effettuata una nuova prenotazione.')
+            ->line('Nome: ' . $this->reservation->user->name)
+            ->line('Email: ' . $this->reservation->user->email)
+            ->line('Telefono: ' . $this->reservation->user->telephone)
+            ->line('Data: ' . $this->reservation->data)
+            ->line('Fascia oraria: ' . $this->fascia)
+            ->line('Numero di posti: ' . $this->posti)
+            ->action('Accetta prenotazione', $acceptUrl);
+        // ->action('Rifiuta prenotazione', $rejectUrl);
+    }
 
-}
+
 
 
 

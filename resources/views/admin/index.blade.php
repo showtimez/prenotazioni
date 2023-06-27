@@ -5,8 +5,45 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-12 shadow">
+        <div class="col-12 ">
+            @php
+                // Retrieve the value of form_disabled from the database and store it in a variable
+                $form_disabled = \App\Models\Setting::where('key', 'form_disabled')->value('value');
+            @endphp
+            @if (session()->has('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            {{-- Use the variable in your Blade file --}}
+            @if($form_disabled == 1)
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-4 bg-success rounded-4">
+                            <label for="form_enabled" class="p-3 fw-bold">Abilita modulo di prenotazione:</label>
+                            <input type="radio" id="form_enabled" name="form_status" value="0" aria-label="Abilita modulo di prenotazione">
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-4 bg-danger rounded-4 align-items-center">
+                            <label for="form_disabled" class="p-3 fw-bold">Disabilita modulo di prenotazione:</label>
+                            <input type="radio" id="form_disabled" name="form_status" value="1" aria-label="Disabilita modulo di prenotazione">
+                            @endif
+                        </div>
+                    </div>
+                </div>
             <h2 class="text-center py-3">Prenotazioni</h2>
+
+
+
+
+
+
+
             <table class="table">
                 <thead>
                     <tr>
@@ -18,6 +55,7 @@
                     </tr>
                 </thead>
                 <tbody>
+
                     @foreach ($reservations as $reservation)
                         <tr>
                             <td>{{ $reservation->id }}</td>
@@ -40,21 +78,33 @@
                                 </td>
                                 <td>
                                     <button type="submit" class="btn btn-primary">Salva</button>
+                                {{-- In your Blade file --}}
+                                {{-- In your Blade file --}}
+                                <td>
+
+                                        {{-- Show both buttons if the reservation has not been accepted or rejected --}}
+                                    <form action="{{ route('reservations.accept', $reservation) }}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success">Invia e-mail di conferma</button>
+                                    </form>
+
+
+
+                                    <form action="{{ route('reservations.reject', $reservation) }}" method="post">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger">Rifiuta</button>
+                                        </form>
+
+
+
+                                    <form action="{{ route('reservations.reset', $reservation) }}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning">Reset</button>
+                                    </form>
                                 </td>
-                            </form>
-                            <td>
-                                <form action="/reservations/{{ $reservation->id }}/accept" method="post">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success">Accetta</button>
-                                </form>
-                            </td>
-                            <td>
-                                <form action="/reservations/{{ $reservation->id }}/reject" method="post">
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger">Rifiuta</button>
-                                </form>
-                            </td>
-                        </tr>
+
+
+
                     @endforeach
                 </tbody>
 
@@ -87,6 +137,32 @@
     });
 });
 
+
+
+
+
+</script>
+<script>
+    document.querySelectorAll('input[name="form_status"]').forEach(radio => {
+        radio.addEventListener('change', event => {
+            const formDisabled = event.target.value === '1';
+            fetch('/reservations/form/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({
+                    form_disabled: formDisabled
+                })
+            }).then(response => {
+                if (response.ok) {
+                    // Ricarica la pagina dopo aver inviato la richiesta al controller
+                    window.location.reload();
+                }
+            });
+        });
+    });
 
 </script>
 @endsection
