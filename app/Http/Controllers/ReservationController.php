@@ -24,7 +24,7 @@ class ReservationController extends Controller
             'email' => 'required|email',
             'telephone' => 'required',
             'data' => 'required|date',
-            'fascia' => 'required|integer|min:1|max:3',
+            'fascia' => 'required|in:1,2,3,4,5',
             'posti' => 'required|integer|min:1',
         ]);
 

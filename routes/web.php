@@ -24,6 +24,8 @@ Route::get('/', function () {
 Route::get('/prenota', [ReservationController::class, 'create'])->name('prenota');
 Route::get('/prenota/update', [ReservationController::class, 'update']);
 Route::post('/prenota/store', [ReservationController::class, 'store']);
+Route::post('/reservations/{reservation}/accept', [ReservationController::class, 'accept'])->name('reservations.accept');
+Route::post('/reservations/{reservation}/reject', [ReservationController::class, 'reject'])->name('reservations.reject');
 
 Route::post('/reservations/{reservation}/update', [ReservationController::class, 'update']);
 
@@ -33,6 +35,8 @@ Route::get('/admin/home',[AdminController::class, 'index'])->name('admin.index')
 // Accept reservation
 Route::post('/reservations/{id}/accept', [ReservationController::class, 'acceptReservation'])->name('reservations.accept');
 
+// rifiuta prenotazione
+Route::patch('/rifiuta/prenotazione/{reservation}', [AdminController::class, 'rejectReservation'])->name('admin.reject_reservation');
 
 // Reset reservation
 Route::post('/reservations/{reservation}/reset', [AdminController::class, 'resetReservation'])->name('reservations.reset');

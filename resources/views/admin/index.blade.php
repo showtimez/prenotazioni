@@ -59,7 +59,7 @@
                     @foreach ($reservations as $reservation)
                         <tr>
                             <td>{{ $reservation->id }}</td>
-                            <td>{{ $reservation->data }}</td>
+                            <td>{{ $reservation->user->name}}</td>
                             <form action="/reservations/{{ $reservation->id }}/update" method="post">
                                 @csrf
                                 <td>
