@@ -59,6 +59,7 @@ Route::get('/reservations/{reservation}/accept', function (Reservation $reservat
     return view('reservations.accept', ['reservation' => $reservation]);
 })->name('reservations.accept-page');
 Route::post('/reservations/{reservation}/accept', [ReservationController::class, 'acceptReservation'])->name('reservations.accept');
+Route::post('/reservations/{reservation}/reject', [ReservationController::class, 'rejectReservation'])->name('reservations.reject');
 
 
 

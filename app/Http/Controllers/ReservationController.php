@@ -79,6 +79,23 @@ class ReservationController extends Controller
 
     return redirect('/admin/home')->with('status', 'Prenotazione accettata con successo!');
 }
+public function rejectReservation(Reservation $reservation)
+{
+    // Update the status of the reservation
+    $reservation->is_accepted = false;
+    $reservation->save();
+
+    // Retrieve the time slot and number of seats reserved by the user
+    $user = $reservation->user;
+    $fascia = $reservation->fascia;
+    $posti = $reservation->posti;
+
+    // Send the ReservationRejected notification to the user
+    $reservation->user->notify(new ReservationRejected($reservation, $fascia, $posti));
+
+    return redirect('/admin/home')->with('status', 'Prenotazione rifiutata con successo!');
+}
+
 
     public function rejected(Reservation $reservation)
     {

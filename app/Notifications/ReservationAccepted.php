@@ -38,7 +38,7 @@ class ReservationAccepted extends Notification
     $timeSlot = $timeSlots[$this->fascia];
 
     return (new MailMessage)
-        ->line('La tua prenotazione è stata accettata!')
+    ->line('Ciao ' . $this->reservation->user->name . ', la tua prenotazione è stata accettata!')
         ->line('Data: ' . $this->reservation->data)
         ->line('Fascia oraria: ' . $timeSlot)
         ->line('Numero di posti: ' . $this->posti);

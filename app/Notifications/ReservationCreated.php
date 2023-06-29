@@ -22,6 +22,7 @@ class ReservationCreated extends Notification
 {
     $acceptUrl = route('reservations.accept-page', $this->reservation->id);
 
+
     return (new MailMessage)
         ->line('È stata effettuata una nuova prenotazione.')
         ->line('Nome: ' . $this->reservation->user->name)
@@ -31,7 +32,9 @@ class ReservationCreated extends Notification
         ->line('Fascia oraria: ' . $this->fascia)
         ->line('Numero di posti: ' . $this->posti)
         ->action('Accetta prenotazione', $acceptUrl);
+
 }
+
 
 
 

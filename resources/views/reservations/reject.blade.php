@@ -9,8 +9,4 @@
         @csrf
         <button type="submit">Accetta</button>
     </form>
-    <form action="{{ route('reservations.reject', $reservation->id) }}" method="POST">
-        @csrf
-        <button type="submit">Rifiuta</button>
-    </form>
 @endsection
