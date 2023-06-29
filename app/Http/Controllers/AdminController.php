@@ -19,14 +19,15 @@ class AdminController extends Controller
 
         $data = $request->input('data');
         if ($data) {
-            $reservations = Reservation::where('data', $data)->get();
+            $reservations = Reservation::where('data', $data)->where('is_accepted', true)->get();
         } else {
-            $reservations = Reservation::all();
+            $reservations = Reservation::where('is_accepted', true)->get();
         }
         $tables = Table::all();
 
         return view('admin.index', compact('reservations', 'tables', 'dates'));
     }
+
 
 
 
