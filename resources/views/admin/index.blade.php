@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="text-center py-5">Dashboard</h1>
+<h1 class="text-center py-5">Prenotazioni</h1>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -15,7 +15,11 @@
                     {{ session('error') }}
                 </div>
             @endif
-
+            @if (session('status'))
+            <div class="alert alert-success">
+                {{ session('status') }}
+            </div>
+        @endif
             {{-- Use the variable in your Blade file --}}
             @if($form_disabled == 1)
                 <div class="container">
@@ -36,10 +40,6 @@
                         </div>
                     </div>
                 </div>
-            <h2 class="text-center py-3">Prenotazioni</h2>
-
-
-
 
 
 
@@ -49,22 +49,78 @@
                     <tr>
                         <th>ID</th>
                         <th>Data</th>
+                        <th>Cliente</th>
                         <th>Fascia oraria</th>
                         <th>Posti</th>
                         <th>Tavolo</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <div class="container">
+                        <div class="row justify-content-center py-5">
+                            <div class="col-12 col-md-8">
+
+                                <form action="/admin/generate-tables" method="post">
+                                    @csrf
+                                    <label for="numTavoli">Numero di tavoli:</label>
+                                    <input type="number" id="numTavoli" name="numTavoli">
+
+                                    <label for="data">Data:</label>
+                                    <input type="date" id="data" name="data" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+
+
+                                    <button type="submit" class="btn rounded bg-warning">Genera tavoli</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form action="/admin/home" method="get">
+                        <label for="data">Data:</label>
+                        <select name="data" id="data" class="mx-2">
+                            <option value="" >Tutte le date</option>
+                            @foreach ($dates as $date)
+                                <option value="{{ $date }}" @if (request('data') == $date) selected @endif>{{ $date }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class=" mx-3 rounded">Filtra</button>
+                    </form>
+
+
 
                     @foreach ($reservations as $reservation)
                         <tr>
                             <td>{{ $reservation->id }}</td>
-                            <td>{{ $reservation->user->name}}</td>
-                            <form action="/reservations/{{ $reservation->id }}/update" method="post">
+                            <td>{{ \Carbon\Carbon::parse($reservation->data)->format('d/m') }}</td>
+                            <td>{{ $reservation->user->name}} <br>
+                            {{ $reservation->user->email }} <br>
+                        {{ $reservation->user->telephone }}</td>
+                            <td>
+                                <span>
+                                @switch($reservation->fascia)
+                                    @case(1)
+                                        18:00 - 19:00
+                                        @break
+                                    @case(2)
+                                        19:00 - 20:00
+                                        @break
+                                    @case(3)
+                                        20:00 - 21:00
+                                        @break
+                                    @case(4)
+                                        21:00 - 22:00
+                                        @break
+                                    @case(5)
+                                        22:00 - 23:00
+                                        @break
+                                @endswitch
+                                </span>
+                            </td>
+
+
+                            <form action="/reservations/{{ $reservation->id }}/update-table-reservation" method="post">
                                 @csrf
-                                <td>
-                                    <input type="number" name="fascia" value="{{ $reservation->fascia }}" class="form-control">
-                                </td>
+
                                 <td>
                                     <input type="number" name="posti" value="{{ $reservation->posti }}" class="form-control">
                                 </td>
@@ -72,8 +128,11 @@
                                     <select name="table_id" class="form-control">
                                         <option value="">Seleziona un tavolo</option>
                                         @foreach ($tables as $table)
+                                        @if ($table->data == $reservation->data)
                                             <option value="{{ $table->id }}" @if ($reservation->table_id == $table->id) selected @endif>{{ $table->name }}</option>
-                                        @endforeach
+                                        @endif
+                                    @endforeach
+
                                     </select>
                                 </td>
                                 <td>
@@ -83,24 +142,26 @@
                                 <td>
 
                                         {{-- Show both buttons if the reservation has not been accepted or rejected --}}
-                                    <form action="{{ route('reservations.accept', $reservation) }}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success">Invia e-mail di conferma</button>
-                                    </form>
+                                        {{-- <form action="{{ route('reservations.accept', $reservation) }}" method="post">
+                                            @csrf
+                                            <input type="hidden" name="acceptance" value="accept">
+                                            <button type="submit" class="btn btn-success">Invia e-mail di conferma</button>
+                                        </form> --}}
 
 
 
-                                    <form action="{{ route('reservations.reject', $reservation) }}" method="post">
+
+                                    {{-- <form action="{{ route('reservations.reject', $reservation) }}" method="post">
                                             @csrf
                                             <button type="submit" class="btn btn-danger">Rifiuta</button>
-                                        </form>
+                                    </form> --}}
 
 
 
-                                    <form action="{{ route('reservations.reset', $reservation) }}" method="post">
+                                    {{-- <form action="{{ route('reservations.reset', $reservation) }}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-warning">Reset</button>
-                                    </form>
+                                    </form> --}}
                                 </td>
 
 

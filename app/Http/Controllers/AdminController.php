@@ -1,22 +1,33 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Setting;
 use App\Models\Table;
+use App\Models\Setting;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use App\Models\TableGeneration;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ReservationConfirmation;
+
 class AdminController extends Controller
 {
 
-    public function index()
+
+    public function index(Request $request)
     {
-        $reservations = Reservation::all();
+        $dates = Reservation::distinct()->pluck('data');
+
+        $data = $request->input('data');
+        if ($data) {
+            $reservations = Reservation::where('data', $data)->get();
+        } else {
+            $reservations = Reservation::all();
+        }
         $tables = Table::all();
 
-        return view('admin.index', compact('reservations', 'tables'));
+        return view('admin.index', compact('reservations', 'tables', 'dates'));
     }
+
 
 
     // In your AdminController
@@ -76,17 +87,55 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Si è verificato un errore durante il rifiuto della prenotazione: ' . $e->getMessage());
         }
     }
+    public function storeTables(Request $request)
+{
+    $numTavoli = $request->input('numTavoli');
+    $data = $request->input('data');
+    $this->generateTables($numTavoli, $data);
+
+    // Reindirizza l'utente alla pagina admin/home
+    return redirect('/admin/home');
+}
+
+
+
+    public function generateTables($numTavoli, $data)
+    {
+        Table::where('data', $data)->delete();
+
+        for ($i = 1; $i <= $numTavoli; $i++) {
+            Table::create([
+                'name' => 'Tavolo ' . $i,
+                'data' => $data,
+                // Aggiungi altre colonne per memorizzare ulteriori dettagli sui tavoli
+            ]);
+        }
+
+        // Salva il numero di tavoli generati nella tabella TableGeneration
+        TableGeneration::create([
+            'data' => $data,
+            'num_tavoli' => $numTavoli,
+        ]);
+    }
 
     public function updateTable(Request $request, Reservation $reservation)
     {
         try {
-            // Aggiorna la prenotazione con il tavolo selezionato dall'amministratore
-            $reservation->update(['table_id' => $request->input('table_id')]);
+            // Aggiorna la prenotazione con il tavolo e i posti selezionati dall'amministratore
+            $reservation->update([
+                'table_id' => $request->input('table_id'),
+                'posti' => $request->input('posti')
+            ]);
+
+            // Redirect the user to the desired page with a success message
+            return redirect('/admin/home')->with('status', 'Prenotazione aggiornata con successo!');
         } catch (\Exception $e) {
             // Gestisci l'eccezione qui
             return redirect()->back()->with('error', 'Si è verificato un errore durante l\'aggiornamento del tavolo: ' . $e->getMessage());
         }
     }
+
+
 
     public function update(Request $request)
     {
@@ -104,5 +153,3 @@ class AdminController extends Controller
         }
     }
 }
-
-

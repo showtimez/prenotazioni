@@ -11,6 +11,7 @@ class Table extends Model
     use HasFactory;
     protected $fillable = [
         'name',
+        'data'
         // Aggiungi altre colonne per memorizzare ulteriori dettagli sui tavoli
     ];
 

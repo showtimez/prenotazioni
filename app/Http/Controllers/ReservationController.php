@@ -61,23 +61,25 @@ class ReservationController extends Controller
                 ->notify(new ReservationCreated($reservation, $data['fascia'], $data['posti']));
         }
 
-        return redirect('/prenota')->with('status', 'Prenotazione effettuata con successo, riceverai una coferma tramite email!');
+        return redirect('/prenota')->with('status', 'Prenotazione effettuata con successo, riceverai una conferma tramite email!');
     }
-    public function accept(Reservation $reservation)
-    {
+    public function acceptReservation(Reservation $reservation)
+{
+    // Update the status of the reservation
+    $reservation->is_accepted = true;
+    $reservation->save();
 
-        // Aggiorna lo stato della prenotazione
-        $reservation->update(['is_accepted' => true]);
+    // Retrieve the time slot and number of seats reserved by the user
+    $user = $reservation->user;
+    $fascia = $reservation->fascia;
+    $posti = $reservation->posti;
 
-        // Recupera la fascia oraria e il numero di posti prenotati dall'utente
-        $fascia = $reservation->fascia;
-        $posti = $reservation->posti;
+    // Send the ReservationAccepted notification to the user
+    $reservation->user->notify(new ReservationAccepted($reservation, $fascia, $posti));
 
-        // Invia la notifica all'utente
-        $reservation->user->notify(new ReservationAccepted($reservation, $fascia, $posti));
+    return redirect('/admin/home')->with('status', 'Prenotazione accettata con successo!');
+}
 
-        return redirect('/prenota')->with('status', 'Prenotazione accettata con successo!');
-    }
     public function rejected(Reservation $reservation)
     {
         // Aggiorna lo stato della prenotazione
@@ -99,6 +101,8 @@ class ReservationController extends Controller
 
     public function updateTable(Request $request, Reservation $reservation)
 {
+
+
     $data = $request->validate([
         'table_id' => 'nullable|integer',
     ]);
@@ -106,21 +110,21 @@ class ReservationController extends Controller
     // Aggiorna la prenotazione con il tavolo selezionato dall'amministratore
     $reservation->update($data);
 }
-public function acceptViaEmail($token)
-{
-    $reservation = Reservation::where('token', $token)->firstOrFail();
-    $reservation->update(['is_accepted' => true]);
+// public function acceptViaEmail($token)
+// {
+//     $reservation = Reservation::where('token', $token)->firstOrFail();
+//     $reservation->update(['is_accepted' => true]);
 
-    return redirect('/')->with('status', 'Prenotazione accettata con successo!');
-}
+//     return redirect('/')->with('status', 'Prenotazione accettata con successo!');
+// }
 
-public function rejectViaEmail($token)
-{
-    $reservation = Reservation::where('token', $token)->firstOrFail();
-    $reservation->update(['is_accepted' => false]);
+// public function rejectViaEmail($token)
+// {
+//     $reservation = Reservation::where('token', $token)->firstOrFail();
+//     $reservation->update(['is_accepted' => false]);
 
-    return redirect('/')->with('status', 'Prenotazione rifiutata con successo!');
-}
+//     return redirect('/')->with('status', 'Prenotazione rifiutata con successo!');
+// }
 
     public function toggleForm(Request $request)
     {

@@ -19,21 +19,22 @@ class ReservationCreated extends Notification
         $this->posti = $posti;
     }
     public function toMail($notifiable)
-    {
-        $acceptUrl = route('reservations.accept', $this->reservation->id);
-        $rejectUrl = route('reservations.reject', $this->reservation->id);
+{
+    $acceptUrl = route('reservations.accept-page', $this->reservation->id);
 
-        return (new MailMessage)
-            ->line('È stata effettuata una nuova prenotazione.')
-            ->line('Nome: ' . $this->reservation->user->name)
-            ->line('Email: ' . $this->reservation->user->email)
-            ->line('Telefono: ' . $this->reservation->user->telephone)
-            ->line('Data: ' . $this->reservation->data)
-            ->line('Fascia oraria: ' . $this->fascia)
-            ->line('Numero di posti: ' . $this->posti)
-            ->action('Accetta prenotazione', $acceptUrl);
-        // ->action('Rifiuta prenotazione', $rejectUrl);
-    }
+    return (new MailMessage)
+        ->line('È stata effettuata una nuova prenotazione.')
+        ->line('Nome: ' . $this->reservation->user->name)
+        ->line('Email: ' . $this->reservation->user->email)
+        ->line('Telefono: ' . $this->reservation->user->telephone)
+        ->line('Data: ' . $this->reservation->data)
+        ->line('Fascia oraria: ' . $this->fascia)
+        ->line('Numero di posti: ' . $this->posti)
+        ->action('Accetta prenotazione', $acceptUrl);
+}
+
+
+
 
 
 
